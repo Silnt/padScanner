@@ -1,0 +1,56 @@
+	//初始化扫描
+     mScanner = ScannerFactory.getScanner(AppContext.getInstance());
+     mScanner.enable();//启用扫描头
+     mScanner.open();//打开扫描
+	 
+	 //监听扫描状态
+	mScanner.setStatusCallBack(StatusCallBack callBack);
+	//监听扫描结果
+	mScanner.setDecodeInfoCallBack(DecodeInfoCallBack  callBack);
+
+	监听扫描按钮的话需要新起一个线程，然后在线程中循环监听扫描按键的状态，在线程中部分监听代码如下：
+	class ScannerRunnable implements Runnable{
+		@Override
+		 public void run() {
+			 int ret1 = ScannerKey.open();
+			 if (ret1 > -1){
+				 LogUtil.i("=====监听扫描按键线程循环开启======");
+				 while (isRun) {
+					 int ret = ScannerKey.getKeyEvent();
+					 if (ret > -1) {
+						 switch (ret) {
+							 case ScannerKey.KEY_DOWN:
+								 //开始扫描
+								 mScanner.startScan();
+								//以下代码省略
+								//......
+								 break;
+							 case ScannerKey.KEY_UP:
+								 //结束扫描
+								 mScanner.stopScan();
+								 //以下代码省略
+								//......
+								 break;
+						 }
+					 }
+					 try {
+						 Thread.sleep(300);
+					 } catch (InterruptedException e) {
+						 e.printStackTrace();
+					 }
+				 }
+			 }
+			LogUtil.i("=====监听扫描按键线程结束======");
+	}
+	 
+	//最后是扫描的销毁：	 
+	//关闭扫描按键监听
+     ScannerKey.close();
+     //关闭扫描头
+     if(mScanner!=null) {
+         mScanner.close();
+     }
+	 
+	 
+	 
+	 
